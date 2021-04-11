@@ -24,13 +24,13 @@ def make_move(game_board, player, enemy, move):
     return game_board
 
 
-def check_score(game_board):
+def check_score(game_board, player, enemy):
     score = 0
     for row in game_board:
         for item in row:
-            if item == 'X':
+            if item == player:
                 score += 1
-            elif item == 'O':
+            elif item == enemy:
                 score -= 1
     return score
 
@@ -64,6 +64,32 @@ def get_enemy_neighbors(game_board, enemy, row, column):
     return neighbors
 
 
+def get_best_move(game_board, depth, player, enemy, avalible_moves):
+    best_move = []
+    if depth == 1:
+        best_score = -100
+        for move in avalible_moves:
+            this_score = check_score(game_board, player, enemy)
+            if this_score > best_score:
+                best_score = this_score
+                best_move = move
+    else:
+        for move in avalible_moves:
+            best_score = -100
+            board_after_this_move = make_move(game_board, player, enemy, move)
+            avalible_moves_after_this_move = get_positions_can_play(board_after_this_move, enemy, player)
+            enemy_move = get_best_move(board_after_this_move, depth - 1, enemy, player, avalible_moves_after_this_move)
+            board_after_this_move_2 = make_move(board_after_this_move, enemy, player, enemy_move)
+            avalible_moves_after_this_move = get_positions_can_play(board_after_this_move_2, player, enemy)
+            fbestmove = get_best_move(board_after_this_move_2, depth - 1, player, enemy, avalible_moves_after_this_move)
+            fnew_board = make_move(board_after_this_move_2, player, enemy, fbestmove)
+            if check_score(fnew_board, player, enemy) > best_score:
+                best_score = check_score(fnew_board, player, enemy)
+                best_move = move
+                return best_move
+    return best_move
+
+
 # Initialize Board for Beginning
 board = [['-' for i in range(8)] for j in range(8)]
 board[3][3], board[4][4], board[4][3], board[3][4] = ["X", "X", "O", "O"]
@@ -87,11 +113,13 @@ while step != 64:
         step += 1
     else:
         print("Player X out of move!")
+    print("Score for X is: " + str(check_score(board, 'X', 'O')))
 
     pcp = get_positions_can_play(board, 'O', 'X')
     print(pcp)
     if len(pcp) != 0:
-        player_X_move = list(int(x) for x in input("Insert Position you want to fill: ").split(' '))
+        # player_X_move =
+        player_X_move = get_best_move(board, 1, 'O', 'X', pcp)
         print(player_X_move)
         while player_X_move not in pcp:
             print("You Can't Do This!!!!")
@@ -103,3 +131,4 @@ while step != 64:
         step += 1
     else:
         print("Player O out of move!")
+    print("Score for O is: " + str(check_score(board, 'O', 'X')))
