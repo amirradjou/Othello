@@ -24,6 +24,17 @@ def make_move(game_board, player, enemy, move):
     return game_board
 
 
+def check_score(game_board):
+    score = 0
+    for row in game_board:
+        for item in row:
+            if item == 'X':
+                score += 1
+            elif item == 'O':
+                score -= 1
+    return score
+
+
 def get_positions_can_play(game_board, player, enemy):
     avalible_position = []
     for i in range(0, 8):
@@ -92,4 +103,3 @@ while step != 64:
         step += 1
     else:
         print("Player O out of move!")
-
