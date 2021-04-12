@@ -173,6 +173,7 @@ while step != 64:
         for line in board:
             print(line)
         print("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii")
+        # Agha nima moshkel daqiqan injast. in khatte paeein ke ejra mishe zamin ro chand marhale mibare jolo khodesh
         player_X_move = minimax(board.copy(), pcp, 1)
         print(player_X_move)
         print("_____________________")
