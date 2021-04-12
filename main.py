@@ -1,7 +1,8 @@
-import math
+import time
 
 
-def make_move(game_board, player, enemy, move):
+def make_move(gameboard, player, enemy, move):
+    game_board = gameboard.copy()
     i = move[0]
     j = move[1]
     game_board[i][j] = player
@@ -64,29 +65,76 @@ def get_enemy_neighbors(game_board, enemy, row, column):
     return neighbors
 
 
-def get_best_move(game_board, depth, player, enemy, avalible_moves):
+'''def get_best_move(game_board, depth, player, enemy, avalible_moves):
     best_move = []
-    if depth == 1:
+    if depth == 0:
         best_score = -100
         for move in avalible_moves:
             this_score = check_score(game_board, player, enemy)
             if this_score > best_score:
                 best_score = this_score
-                best_move = move
+                best_move = move.copy()
     else:
         for move in avalible_moves:
             best_score = -100
-            board_after_this_move = make_move(game_board, player, enemy, move)
+            this_score = check_score(make_move(game_board, enemy, player,
+                                               get_best_move(game_board, depth - 1, enemy, player,
+                                                             get_positions_can_play(game_board, enemy, player))),
+                                     player, enemy)
+            if this_score > best_score:
+                best_score = this_score
+                best_move = move.copy()
+            board_after_this_move = make_move(game_board.copy(), player, enemy, move)
             avalible_moves_after_this_move = get_positions_can_play(board_after_this_move, enemy, player)
-            enemy_move = get_best_move(board_after_this_move, depth - 1, enemy, player, avalible_moves_after_this_move)
-            board_after_this_move_2 = make_move(board_after_this_move, enemy, player, enemy_move)
+            for sencond_move in avalible_moves_after_this_move:
+                enemy_move = get_best_move(board_after_this_move, depth - 1, enemy, player,
+                                           avalible_moves_after_this_move)
+            board_after_this_move_2 = make_move(board_after_this_move.copy(), enemy, player, enemy_move)
             avalible_moves_after_this_move = get_positions_can_play(board_after_this_move_2, player, enemy)
             fbestmove = get_best_move(board_after_this_move_2, depth - 1, player, enemy, avalible_moves_after_this_move)
-            fnew_board = make_move(board_after_this_move_2, player, enemy, fbestmove)
+            fnew_board = make_move(board_after_this_move_2.copy(), player, enemy, fbestmove)
             if check_score(fnew_board, player, enemy) > best_score:
                 best_score = check_score(fnew_board, player, enemy)
                 best_move = move
+                print("kiiiiiiiiiiiiir")
                 return best_move
+    return best_move
+'''
+
+
+def max_value(game_board, avalible_moves, depth):
+    best_score = -100
+    if depth == 0:
+        return check_score(game_board.copy(), 'X', 'O')
+    for move in avalible_moves:
+        board_after_this_move = make_move(game_board.copy(), 'X', 'O', move)
+        avalible_moves_after_this_move = get_positions_can_play(board_after_this_move, 'X', 'O')
+        best_score = max(best_score, min_value(board_after_this_move.copy(), avalible_moves_after_this_move, depth - 1))
+    return best_score
+
+
+def min_value(game_board, avalible_moves, depth):
+    best_score = 100
+    if depth == 0:
+        return check_score(game_board, 'X', 'O')
+    for move in avalible_moves:
+        board_after_this_move = make_move(game_board.copy(), 'X', 'O', move)
+        avalible_moves_after_this_move = get_positions_can_play(board_after_this_move, 'X', 'O')
+        best_score = min(best_score, max_value(board_after_this_move.copy(), avalible_moves_after_this_move, depth - 1))
+    return best_score
+
+
+def minimax(gameboard, avalible_moves, depth):
+    game_board = gameboard.copy()
+    best_move = []
+    best_score = -100
+    for move in avalible_moves:
+        board_after_this_move = make_move(game_board.copy(), 'X', 'O', move)
+        avalible_moves_after_this_move = get_positions_can_play(board_after_this_move.copy(), 'X', 'O')
+        this_score = min_value(board_after_this_move.copy(), avalible_moves_after_this_move, depth - 1)
+        if this_score > best_score:
+            best_score = this_score
+            best_move = move
     return best_move
 
 
@@ -115,12 +163,22 @@ while step != 64:
         print("Player X out of move!")
     print("Score for X is: " + str(check_score(board, 'X', 'O')))
 
-    pcp = get_positions_can_play(board, 'O', 'X')
+    pcp = get_positions_can_play(board.copy(), 'O', 'X')
     print(pcp)
     if len(pcp) != 0:
         # player_X_move =
-        player_X_move = get_best_move(board, 1, 'O', 'X', pcp)
+        # player_X_move = get_best_move(board, 2, 'O', 'X', pcp)
+        tic = time.time()
+        print("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii")
+        for line in board:
+            print(line)
+        print("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii")
+        player_X_move = minimax(board.copy(), pcp, 1)
         print(player_X_move)
+        print("_____________________")
+        print(time.time() - tic)
+        print(player_X_move)
+
         while player_X_move not in pcp:
             print("You Can't Do This!!!!")
             player_X_move = list(int(x) for x in input("Insert Position you want to fill: ").split(' '))
