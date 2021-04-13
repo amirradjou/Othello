@@ -1,4 +1,5 @@
 import time
+from copy import deepcopy
 
 
 def make_move(gameboard, player, enemy, move):
@@ -42,6 +43,7 @@ def get_positions_can_play(game_board, player, enemy):
         for j in range(0, 8):
             if game_board[i][j] == player:
                 # Check Enemy in neighbors
+
                 for positions in get_enemy_neighbors(game_board, enemy, i, j):
                     right = positions[0] - i
                     up = positions[1] - j
@@ -53,6 +55,9 @@ def get_positions_can_play(game_board, player, enemy):
                             break
                         x = x + right
                         y = y + up
+                        if x in range(0, 8) and y in range(0, 8):
+                            if game_board[x][y] == player:
+                                break
     return avalible_position
 
 
@@ -63,43 +68,6 @@ def get_enemy_neighbors(game_board, enemy, row, column):
             if game_board[i][j] == enemy:
                 neighbors.append([i, j])
     return neighbors
-
-
-'''def get_best_move(game_board, depth, player, enemy, avalible_moves):
-    best_move = []
-    if depth == 0:
-        best_score = -100
-        for move in avalible_moves:
-            this_score = check_score(game_board, player, enemy)
-            if this_score > best_score:
-                best_score = this_score
-                best_move = move.copy()
-    else:
-        for move in avalible_moves:
-            best_score = -100
-            this_score = check_score(make_move(game_board, enemy, player,
-                                               get_best_move(game_board, depth - 1, enemy, player,
-                                                             get_positions_can_play(game_board, enemy, player))),
-                                     player, enemy)
-            if this_score > best_score:
-                best_score = this_score
-                best_move = move.copy()
-            board_after_this_move = make_move(game_board.copy(), player, enemy, move)
-            avalible_moves_after_this_move = get_positions_can_play(board_after_this_move, enemy, player)
-            for sencond_move in avalible_moves_after_this_move:
-                enemy_move = get_best_move(board_after_this_move, depth - 1, enemy, player,
-                                           avalible_moves_after_this_move)
-            board_after_this_move_2 = make_move(board_after_this_move.copy(), enemy, player, enemy_move)
-            avalible_moves_after_this_move = get_positions_can_play(board_after_this_move_2, player, enemy)
-            fbestmove = get_best_move(board_after_this_move_2, depth - 1, player, enemy, avalible_moves_after_this_move)
-            fnew_board = make_move(board_after_this_move_2.copy(), player, enemy, fbestmove)
-            if check_score(fnew_board, player, enemy) > best_score:
-                best_score = check_score(fnew_board, player, enemy)
-                best_move = move
-                print("kiiiiiiiiiiiiir")
-                return best_move
-    return best_move
-'''
 
 
 def max_value(game_board, avalible_moves, depth):
@@ -166,15 +134,8 @@ while step != 64:
     pcp = get_positions_can_play(board.copy(), 'O', 'X')
     print(pcp)
     if len(pcp) != 0:
-        # player_X_move =
-        # player_X_move = get_best_move(board, 2, 'O', 'X', pcp)
         tic = time.time()
-        print("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii")
-        for line in board:
-            print(line)
-        print("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii")
-        # Agha nima moshkel daqiqan injast. in khatte paeein ke ejra mishe zamin ro chand marhale mibare jolo khodesh
-        player_X_move = minimax(board.copy(), pcp, 1)
+        player_X_move = minimax(deepcopy(board), pcp, 15)
         print(player_X_move)
         print("_____________________")
         print(time.time() - tic)
